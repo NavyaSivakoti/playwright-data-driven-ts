@@ -137,10 +137,10 @@ npx playwright show-report
 
 ## Test Results
 
-All 18 tests pass across 3 browsers (Chromium, Firefox, WebKit).
+All 18 tests pass across 2 browsers (Chromium, Firefox).
 
 ```
-18 passed (6 test cases x 3 browsers)
+12 passed (6 test cases x 2 browsers)
 0 failed
 0 flaky
 ```
