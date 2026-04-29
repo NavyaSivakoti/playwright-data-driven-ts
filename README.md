@@ -17,19 +17,30 @@ playwright-data-driven-ts/
 │   └── projectLocators.ts      # Project board element selectors
 ├── pages/
 │   ├── LoginPage.ts            # Login page actions
-│   └── ProjectPage.ts          # Project board actions
+│   └── ProjectPage.ts          # Project board actions and verifications
 ├── tests/
-│   └── asana.spec.ts           # Main test file
-├── config.ts                   # Base URL and credentials
+│   └── asana.spec.ts           # Main test file with data-driven loop
+├── config.ts                   # Credentials
 ├── testData.ts                 # Test data for all 6 test cases
-└── playwright.config.ts        # Playwright configuration
+└── playwright.config.ts        # Playwright configuration including baseURL
 ```
 
 ## How It Works
 
 ### Data-Driven Approach
 
-All 6 test cases are defined in `testData.ts` as an array of objects. Each object has 4 parameters:
+All 6 test cases are defined in `testData.ts` as a typed array using the `TestCase` interface:
+
+```typescript
+interface TestCase {
+  project: string;
+  task: string;
+  column: string;
+  tags: string[];
+}
+```
+
+Each object represents one test case with 4 parameters:
 
 ```typescript
 {
@@ -52,16 +63,29 @@ Locators are separated from business logic:
 
 This means if a selector changes, only one file needs updating.
 
-### Column Scoping
+### Column and Task Card Scoping
 
-The key locator strategy used is column container scoping:
+The key locator strategy used is two level scoping:
 
 ```typescript
-// Finds the column heading and goes up to its parent container
-page.getByRole('heading', { name: columnName, level: 2 }).locator('..')
+// Step 1: Find the column container
+const column = page
+  .getByRole('heading', { name: columnName, level: 2 })
+  .locator('..');
+
+// Step 2: Find the specific task card inside that column
+const taskCard = column
+  .getByRole('heading', { name: taskName, level: 3 })
+  .locator('..');
+
+// Step 3: Verify tags inside that specific task card only
+await expect(taskCard.getByText(tag, { exact: true })).toBeVisible();
 ```
 
-All task and tag verifications happen inside that specific column container only. This prevents false positives even when the same tag appears in multiple columns.
+This two level scoping ensures:
+- Tag verification is scoped to the correct column only
+- Tag verification is further scoped to the correct task card only
+- No false positives even if the same tag appears in multiple columns or multiple cards
 
 ## Test Cases
 
@@ -85,7 +109,7 @@ All task and tag verifications happen inside that specific column container only
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/NavyaSivakoti/playwright-data-driven-ts.git
 cd playwright-data-driven-ts
 
 # Install dependencies
@@ -98,8 +122,14 @@ npx playwright install
 ### Running Tests
 
 ```bash
-# Run all tests
+# Run all tests headless
 npx playwright test
+
+# Run all tests with browser visible
+npx playwright test --headed
+
+# Run on specific browser
+npx playwright test --project=chromium
 
 # View HTML report
 npx playwright show-report
@@ -117,6 +147,6 @@ All 18 tests pass across 3 browsers (Chromium, Firefox, WebKit).
 
 ## Configuration
 
-Credentials and base URL are stored in `config.ts`.
+Base URL is configured in `playwright.config.ts`. Credentials are stored in `config.ts`.
 
 > Note: In a production environment, credentials should be stored in a `.env` file, CI/CD pipeline secrets (e.g. GitHub Actions Secrets), or a secrets manager and never hardcoded in the codebase.

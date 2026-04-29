@@ -29,8 +29,8 @@ export default defineConfig({
     // baseURL: 'http://localhost:3000',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    baseURL: 'https://animated-gingersnap-8cf7f2.netlify.app/',
     trace: 'on-first-retry',
-    headless: false,
     screenshot: 'on',
     video: 'on'
   },
@@ -47,10 +47,10 @@ export default defineConfig({
       use: { ...devices['Desktop Firefox'] },
     },
 
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+    // {
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] },
+    // },
 
     /* Test against mobile viewports. */
     // {

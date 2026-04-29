@@ -7,7 +7,7 @@ export class LoginPage {
 
     async login() {
         const locators = loginLocators(this.page);
-        await this.page.goto(config.baseURL);
+        await this.page.goto('/');
         await locators.usernameInput.fill(config.username);
         await locators.passwordInput.fill(config.password);
         await locators.signInButton.click();

@@ -16,14 +16,23 @@ export class ProjectPage {
 
         // find the column container first
         const column = locators.columnContainer(columnName);
-        console.log(column);
+
+        // find the specific task card inside that column
+        // .. goes up from h3 to the task card div
+        const taskCard = column
+            .getByRole('heading', { name: taskName, level: 3 })
+            .locator('..');
 
         // verify task exists inside that column
-        await expect(column.getByRole('heading', { name: taskName, level: 3 })).toBeVisible();
+        await expect(
+            column.getByRole('heading', { name: taskName, level: 3 })
+        ).toBeVisible();
 
-        // verify each tag exists inside that column
+        // verify each tag exists inside that specific task card only
         for (const tag of tags) {
-            await expect(column.getByText(tag, { exact: true })).toBeVisible();
+            await expect(
+                taskCard.getByText(tag, { exact: true })
+            ).toBeVisible();
         }
     }
 }
