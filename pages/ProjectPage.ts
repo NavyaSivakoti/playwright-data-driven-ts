@@ -17,7 +17,7 @@ export class ProjectPage {
         // Step 1: find the column using h2
         const column = locators.columnContainer(columnName);
 
-        // Step 2: find the exact task card using bg-white scoped to column
+        // Step 2: find the exact task card inside the column
         const taskCard = column.locator('div.bg-white').filter({
             has: this.page.getByRole('heading', { name: taskName, exact: true, level: 3 })
         });

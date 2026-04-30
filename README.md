@@ -68,18 +68,23 @@ This means if a selector changes, only one file needs updating.
 The key locator strategy used is two level scoping:
 
 ```typescript
-// Step 1: Find the column container
-const column = page
-  .getByRole('heading', { name: columnName, level: 2 })
-  .locator('..');
+// Step 1: Find the column container using h2 heading
+const column = page.locator('div').filter({
+  has: page.getByRole('heading', { name: columnName, level: 2 })
+});
 
-// Step 2: Find the specific task card inside that column
-const taskCard = column
-  .getByRole('heading', { name: taskName, level: 3 })
-  .locator('..');
+// Step 2: Find the exact task card inside that column
+const taskCard = column.locator('div.bg-white').filter({
+  has: page.getByRole('heading', { name: taskName, exact: true, level: 3 })
+});
 
-// Step 3: Verify tags inside that specific task card only
-await expect(taskCard.getByText(tag, { exact: true })).toBeVisible();
+// ensures exactly one card matches the task name in this column
+await expect(taskCard).toHaveCount(1);
+
+// Step 3: verify each tag inside that specific task card only
+for (const tag of tags) {
+  await expect(taskCard.getByText(tag, { exact: true })).toBeVisible();
+}
 ```
 
 This two level scoping ensures:
@@ -137,7 +142,7 @@ npx playwright show-report
 
 ## Test Results
 
-All 18 tests pass across 2 browsers (Chromium, Firefox).
+All 12 tests pass across 2 browsers (Chromium and Firefox).
 
 ```
 12 passed (6 test cases x 2 browsers)
